@@ -7,23 +7,23 @@
 #include <pebble.h>
 
 static Window *window;	
-static TextLayer *debt_text_layer;
-static AppTimer *debt_timer;
+static TextLayer *random_text_layer;
+static AppTimer *random_timer;
 	
 // Called when a message is received from the JavaScript side
 static void in_received_handler(DictionaryIterator *received, void *context) {
 	Tuple *tuple;
     
-	tuple = dict_find(received, MESSAGE_KEY_DEBT);
+	tuple = dict_find(received, MESSAGE_KEY_RANDOM);
 	if(tuple) {
-        text_layer_set_text(debt_text_layer, tuple->value->cstring);
+        text_layer_set_text(random_text_layer, tuple->value->cstring);
 	} else {
-        text_layer_set_text(debt_text_layer, "ERROR!");
+        text_layer_set_text(random_text_layer, "ERROR!");
     }
 }
 
-// Make a request for the national debt number
-static void ask_for_debt(void *context) {
+// Make a request for the random number
+static void ask_for_random(void *context) {
     DictionaryIterator *iter;
 	
 	uint32_t result = app_message_outbox_begin(&iter);
@@ -32,12 +32,12 @@ static void ask_for_debt(void *context) {
 	    dict_write_end(iter);
         app_message_outbox_send();
     }
-    debt_timer = app_timer_register(5000, ask_for_debt, NULL);
+    random_timer = app_timer_register(5000, ask_for_random, NULL);
 }
 
 static void select_click_handler(ClickRecognizerRef recognizer, void *context) {
-    app_timer_cancel(debt_timer);
-    ask_for_debt(NULL);
+    app_timer_cancel(random_timer);
+    ask_for_random(NULL);
 }
 
 static void up_click_handler(ClickRecognizerRef recognizer, void *context) {
@@ -71,15 +71,15 @@ static void init(void) {
     app_message_open(inbox_size, outbox_size);
 
     // Configure the debt text layer
-    debt_text_layer = text_layer_create(GRect(10,60, frame.size.w-20, frame.size.h-120));
-    text_layer_set_font(debt_text_layer, fonts_get_system_font(FONT_KEY_GOTHIC_18_BOLD));
-    text_layer_set_background_color(debt_text_layer, GColorWhite);
-    text_layer_set_text_color(debt_text_layer, GColorRed);
-    text_layer_set_text_alignment(debt_text_layer, GTextAlignmentCenter);
-    layer_add_child(window_layer, text_layer_get_layer(debt_text_layer));
+    random_text_layer = text_layer_create(GRect(10,60, frame.size.w-20, frame.size.h-120));
+    text_layer_set_font(random_text_layer, fonts_get_system_font(FONT_KEY_GOTHIC_18_BOLD));
+    text_layer_set_background_color(random_text_layer, GColorWhite);
+    text_layer_set_text_color(random_text_layer, GColorRed);
+    text_layer_set_text_alignment(random_text_layer, GTextAlignmentCenter);
+    layer_add_child(window_layer, text_layer_get_layer(random_text_layer));
     
     // Set the timer
-    debt_timer = app_timer_register(5000, ask_for_debt, NULL);
+    random_timer = app_timer_register(5000, ask_for_random, NULL);
 }
 
 static void deinit(void) {

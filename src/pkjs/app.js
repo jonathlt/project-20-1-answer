@@ -5,7 +5,7 @@
 //
 //  Mike Jipping, August, 2016
 
-var debtURL = "http://www.brillig.com/debt_clock";
+var randomURL = "https://www.random.org/integers/?num=1&min=1&max=50&col=1&base=10&format=plain&rnd=new";
 
 // Called when the message send attempt succeeds
 function messageSuccessHandler() {
@@ -17,23 +17,16 @@ function messageFailureHandler() {
   console.log("Message send failed.");
 }
 
-// Goes to "debURL" and scrapes the page for the current US national debt
-function get_the_debt() {
+// Gets a random number between 1 and 50
+function get_random() {
    var req = new XMLHttpRequest();  
-   req.open('GET', debtURL, false);   
+   req.open('GET', randomURL, false);   
    req.send(null);  
    if(req.status != 200) return "0";
     
    var page = req.responseText;
 
-   // Find the debt number
-   var index = page.indexOf("ALT=\"$");
-   var pos = page.indexOf("\"", index+6);
-   var amount = page.substr(index+5, pos-index-5);
-   var regexp = / /g;
-   amount = amount.replace(regexp,"");
-
-    return amount;
+  return page;
 }
 
 // Called when JavaScript is ready
@@ -43,13 +36,13 @@ Pebble.addEventListener("ready", function(e) {
 												
 // Called when incoming message from the Pebble is received
 Pebble.addEventListener("appmessage", function(e) {
-  var debt;
+  var rand;
   var dictionary = e.payload;
     
   console.log('Got message: ' + JSON.stringify(dictionary));
   if (dictionary['ASK']) {
-        debt = get_the_debt();
-        console.log("Debt = " + debt);
-        Pebble.sendAppMessage({"DEBT": debt}, messageSuccessHandler, messageFailureHandler);
+        rand = get_random();
+        console.log("Number = " + rand);
+        Pebble.sendAppMessage({"RANDOM": rand}, messageSuccessHandler, messageFailureHandler);
   }
 });
