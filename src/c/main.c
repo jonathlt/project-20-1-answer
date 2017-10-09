@@ -14,19 +14,25 @@ static AppTimer *city_timer;
 	
 // Called when a message is received from the JavaScript side
 static void in_received_handler(DictionaryIterator *received, void *context) {
-	Tuple *tuple;
-    
-	tuple = dict_find(received, MESSAGE_KEY_RANDOM);
-	if(tuple) {
-        text_layer_set_text(random_text_layer, tuple->value->cstring);
-	} else {
-        text_layer_set_text(random_text_layer, "ERROR!");
-    }
-  tuple = dict_find(received, MESSAGE_KEY_CITY);
-  if (tuple) {
-        text_layer_set_text(city_text_layer, tuple->value->cstring);
-  } else {
-        text_layer_set_text(city_text_layer, "ERROR!");
+	Tuple *tuple_random;
+  Tuple *tuple_city;
+  
+	tuple_random = dict_find(received, MESSAGE_KEY_RANDOM);
+  
+	if(tuple_random) {
+        char *random_value = tuple_random->value->cstring;
+        static char s_buffer[255];
+        snprintf(s_buffer, sizeof(s_buffer), "%s", random_value);
+        text_layer_set_text(random_text_layer, s_buffer);
+	} 
+  
+  tuple_city = dict_find(received, MESSAGE_KEY_CITY);
+  
+  if (tuple_city) {
+        char *city = tuple_city->value->cstring;
+        static char s_buffer[255];
+        snprintf(s_buffer, sizeof(s_buffer), "%s", city);
+        text_layer_set_text(city_text_layer, s_buffer);
   }
 }
 
@@ -50,7 +56,7 @@ static void ask_for_city(void *context) {
    uint32_t result = app_message_outbox_begin(&iter);
   
    if (result == APP_MSG_OK) {
-     dict_write_int8(iter, MESSAGE_KEY_CITY, 1);
+     dict_write_int8(iter, MESSAGE_KEY_CITY, 2);
      dict_write_end(iter);
      app_message_outbox_send();
    }
