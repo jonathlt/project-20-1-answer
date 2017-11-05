@@ -11,6 +11,8 @@ static TextLayer *random_text_layer;
 static TextLayer *city_text_layer;
 static AppTimer *random_timer;
 static AppTimer *city_timer;
+static AppTimer *distance_timer;
+static TextLayer *distance_text_layer;
 	
 // Called when a message is received from the JavaScript side
 static void in_received_handler(DictionaryIterator *received, void *context) {
@@ -34,6 +36,7 @@ static void in_received_handler(DictionaryIterator *received, void *context) {
         snprintf(s_buffer, sizeof(s_buffer), "%s", city);
         text_layer_set_text(city_text_layer, s_buffer);
   }
+  
 }
 
 // Make a request for the random number
@@ -61,6 +64,21 @@ static void ask_for_city(void *context) {
      app_message_outbox_send();
    }
    city_timer = app_timer_register(10000, ask_for_city, NULL);
+}
+
+// Make a request for distance
+static void ask_for_distance(void *context) {
+  DictionaryIterator *iter;
+  
+   uint32_t result = app_message_outbox_begin(&iter);
+  
+   if (result == APP_MSG_OK) {
+     dict_write_cstring(iter, MESSAGE_KEY_LOCATION_LAT, "52.345");
+     dict_write_cstring(iter, MESSAGE_KEY_LOCATION_LON, "0.542");
+     dict_write_end(iter);
+     app_message_outbox_send();
+   }
+   distance_timer = app_timer_register(12000, ask_for_distance, NULL);
 }
 
 static void select_click_handler(ClickRecognizerRef recognizer, void *context) {
@@ -113,10 +131,19 @@ static void init(void) {
     text_layer_set_text_color(city_text_layer, GColorRed);
     text_layer_set_text_alignment(city_text_layer, GTextAlignmentCenter);
     layer_add_child(window_layer, text_layer_get_layer(city_text_layer));
+  
+    // Configure the distance text layer
+    distance_text_layer = text_layer_create(GRect(10, 110, frame.size.w-20, frame.size.h-160));
+    text_layer_set_font(distance_text_layer, fonts_get_system_font(FONT_KEY_GOTHIC_24_BOLD));
+    text_layer_set_background_color(distance_text_layer, GColorWhite);
+    text_layer_set_text_color(distance_text_layer, GColorRed);
+    text_layer_set_text_alignment(distance_text_layer, GTextAlignmentCenter);
+    layer_add_child(window_layer, text_layer_get_layer(distance_text_layer));
     
     // Set the timers
     random_timer = app_timer_register(5000, ask_for_random, NULL);
     city_timer = app_timer_register(10000, ask_for_city, NULL);
+    distance_timer = app_timer_register(10000, ask_for_distance, NULL);
 }
 
 static void deinit(void) {

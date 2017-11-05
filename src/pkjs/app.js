@@ -89,4 +89,9 @@ Pebble.addEventListener("appmessage", function(e) {
         getLocation();
   }
   
+  if (dictionary['LOCATION_LAT'] && dictionary['LOCATION_LON']) {
+        console.log("Got location lat" + dictionary['LOCATION_LAT']);
+        console.log("Got location lon" + dictionary['LOCATION_LON']);
+  }
+    
 });

@@ -4,12 +4,17 @@
     "keywords": [],
     "name": "c20",
     "pebble": {
+        "capabilities": [
+            "location"
+        ],
         "displayName": "c20",
         "enableMultiJS": true,
         "messageKeys": [
             "ASK",
             "RANDOM",
-            "CITY"
+            "CITY",
+            "LOCATION_LAT",
+            "LOCATION_LON"
         ],
         "projectType": "native",
         "resources": {
